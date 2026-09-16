@@ -1,0 +1,14 @@
+[teos_engine]
+mode = "sovereign"
+audit_log = "AUDIT_INDEX.md"
+
+[gateway]
+# Point this to your running teos-ai-engine instance
+teos_ai_endpoint = "http://localhost:3000/api/v1"
+llm_provider = "ollama"
+tts_provider = "edge"
+
+[compliance]
+ert_filter = true
+icbc_governance = true
+visibility_scoring = true
