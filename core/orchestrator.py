@@ -2,8 +2,9 @@
 
 import asyncio
 import json
+from pathlib import Path
 
-from core import gateway, governance
+from core import gateway, governance, subtitles, video
 
 
 class VideoOrchestrator:
@@ -34,16 +35,31 @@ class VideoOrchestrator:
             f"Audio file generated successfully: {audio_path}",
         )
 
-        governance.log_audit(
-            "Pipeline Complete",
-            "Sovereign script + TTS ready. Video assembly is the next stage.",
+        # 3. Locally transcribe the audio into timed subtitles.
+        srt_path = await subtitles.generate_subtitles(
+            audio_path,
+            str(Path("assets") / "subtitles" / "output.srt"),
         )
+        governance.log_audit("Subtitles", "Generated local SRT file.")
+
+        # 4. Assemble the final short-form MP4.
+        video_path = video.assemble_video(
+            script,
+            audio_path,
+            srt_path,
+            str(Path("assets") / "videos" / "output.mp4"),
+        )
+        governance.log_audit("Video Assembly", f"Final MP4 rendered successfully: {video_path}")
+
+        governance.log_audit("Pipeline Complete", "Sovereign video rendered end-to-end.")
 
         return {
             "status": "success",
             "topic": self.topic,
             "script": script,
             "audio": audio_path,
+            "subtitles": srt_path,
+            "video": video_path,
         }
 
 

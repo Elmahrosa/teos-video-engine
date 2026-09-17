@@ -17,6 +17,10 @@ ollama_model = "llama3.2"
 tts_provider = "edge"
 tts_voice = "en-US-ChristopherNeural"
 
+# Local transcription (openai-whisper, on-device). tiny/base for speed.
+whisper_model = "tiny"
+whisper_language = "en"
+
 [compliance]
 ert_filter = true
 icbc_governance = true
@@ -30,3 +34,12 @@ allowed_domains = [
   "teosegypt.com",
   "github.com/Elmahrosa",
 ]
+
+[video]
+# Vertical short-form canvas (9:16). TEOS branded dark blue/black background.
+width = 1080
+height = 1920
+fps = 30
+background = [8, 10, 22]
+# Leave empty to auto-resolve a system font for the burned-in subtitles.
+subtitle_font = ""
