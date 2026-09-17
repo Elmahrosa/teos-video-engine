@@ -13,6 +13,21 @@ def run_cli(topic: str, voice: str | None = None):
 
     engine = VideoOrchestrator(topic=topic, voice=voice)
     result = asyncio.run(engine.generate())
+
+    visibility = result.get("visibility") or {}
+    if visibility:
+        print("\n==========================================")
+        print("   PREDICTED VISIBILITY")
+        print("==========================================")
+        print(f"  Reach Score : {visibility['score']}/100")
+        print(f"  Grade       : {visibility['grade']}")
+        print(f"  Words       : {visibility.get('metrics', {}).get('words', 'n/a')}")
+        print(f"  Pacing      : {visibility.get('metrics', {}).get('wpm', 'n/a')} WPM")
+        print("  Feedback:")
+        for line in visibility.get("feedback", []):
+            print(f"    - {line}")
+        print("==========================================\n")
+
     print("\nResult:", json.dumps(result, indent=2, ensure_ascii=False))
 
 

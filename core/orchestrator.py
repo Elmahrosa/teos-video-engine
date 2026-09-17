@@ -6,7 +6,7 @@ from pathlib import Path
 
 from moviepy import AudioFileClip
 
-from core import asset_manager, gateway, governance, subtitles, video
+from core import asset_manager, gateway, governance, scoring, subtitles, video
 
 
 class VideoOrchestrator:
@@ -66,6 +66,15 @@ class VideoOrchestrator:
         )
         governance.log_audit("Video Assembly", f"Final MP4 rendered successfully: {video_path}")
 
+        # 6. Predict the reach/engagement of the finished video.
+        score_data = scoring.VisibilityScorer().predict_reach(
+            script, audio_duration, len(matched)
+        )
+        governance.log_audit(
+            "Visibility Scoring",
+            f"Predicted Reach Score: {score_data['score']}/100 ({score_data['grade']})",
+        )
+
         governance.log_audit("Pipeline Complete", "Sovereign video rendered end-to-end.")
 
         return {
@@ -76,6 +85,7 @@ class VideoOrchestrator:
             "subtitles": srt_path,
             "assets": matched,
             "video": video_path,
+            "visibility": score_data,
         }
 
 
