@@ -36,3 +36,26 @@ def log_audit(step: str, details: str, source: str = "teos-video-engine") -> Non
     row = f"| {timestamp} | {step} | {details} | {source} |\n"
     with open(AUDIT_FILE, "a", encoding="utf-8") as handle:
         handle.write(row)
+
+
+def recent_audit(limit: int = 25) -> list[dict]:
+    """Return the most recent audit rows as structured records."""
+    if not AUDIT_FILE.exists():
+        return []
+    rows = AUDIT_FILE.read_text(encoding="utf-8").strip().splitlines()
+    entries: list[dict] = []
+    for line in rows:
+        if not line.startswith("| ") or line.startswith("| Timestamp"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if len(cells) < 3:
+            continue
+        entries.append(
+            {
+                "timestamp": cells[0],
+                "step": cells[1],
+                "details": cells[2],
+                "source": cells[3] if len(cells) > 3 else "teos-video-engine",
+            }
+        )
+    return entries[-limit:]

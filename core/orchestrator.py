@@ -2,6 +2,8 @@
 
 import asyncio
 import json
+import uuid
+from datetime import datetime
 from pathlib import Path
 
 from moviepy import AudioFileClip
@@ -14,6 +16,8 @@ class VideoOrchestrator:
         self.topic = topic
         self.voice = voice
         self.assets = asset_manager.AssetManager()
+        # Unique run scope so concurrent web requests never clobber outputs.
+        self.run_id = f"forge_{datetime.now():%Y%m%d-%H%M%S}_{uuid.uuid4().hex[:6]}"
 
     async def generate(self) -> dict:
         governance.log_audit(
@@ -41,7 +45,7 @@ class VideoOrchestrator:
         # 3. Locally transcribe the audio into timed subtitles.
         srt_path = await subtitles.generate_subtitles(
             audio_path,
-            str(Path("assets") / "subtitles" / "output.srt"),
+            str(Path("assets") / "subtitles" / f"{self.run_id}.srt"),
         )
         governance.log_audit("Subtitles", "Generated local SRT file.")
 
@@ -61,7 +65,7 @@ class VideoOrchestrator:
             script,
             audio_path,
             srt_path,
-            str(Path("assets") / "videos" / "output.mp4"),
+            str(Path("assets") / "videos" / f"{self.run_id}.mp4"),
             assets=matched,
         )
         governance.log_audit("Video Assembly", f"Final MP4 rendered successfully: {video_path}")

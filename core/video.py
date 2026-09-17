@@ -11,12 +11,19 @@ canvas via numpy — avoiding MoviePy's per-frame CompositeVideoClip blitting,
 which is dramatically slower at 1080p.
 """
 
+import uuid
+from datetime import datetime
 from pathlib import Path
 
 import numpy as np
 from moviepy import AudioFileClip, ColorClip, VideoClip, VideoFileClip
 
 from core.config import load_config
+
+
+def _unique_mp4_path() -> str:
+    run_id = f"forge_{datetime.now():%Y%m%d-%H%M%S}_{uuid.uuid4().hex[:6]}"
+    return str(Path("assets") / "videos" / f"{run_id}.mp4")
 
 
 def _srt_entries(srt_path: str) -> list:
@@ -254,7 +261,7 @@ def assemble_video(
     script: str,
     audio_path: str,
     srt_path: str,
-    output_path: str,
+    output_path: str | None = None,
     assets: list[str] | None = None,
 ) -> str:
     """Combine canvas, audio track and burned-in subtitles into an MP4.
@@ -263,6 +270,9 @@ def assemble_video(
     the canvas becomes a Ken Burns sequence of those images/clips filling the
     audio duration; otherwise the TEOS-branded solid background is used. The
     burned-in subtitles ride on top of whichever canvas is chosen.
+
+    *output_path* is optional: when omitted, a unique per-render filename is
+    generated so concurrent requests never overwrite each other.
 
     Returns the path to the rendered video file.
     """
@@ -307,7 +317,7 @@ def assemble_video(
     video = VideoClip(make_frame).with_fps(fps).with_duration(duration)
     video = video.with_audio(audio)
 
-    out_path = Path(output_path)
+    out_path = Path(output_path) if output_path else Path(_unique_mp4_path())
     out_path.parent.mkdir(parents=True, exist_ok=True)
     video.write_videofile(
         str(out_path),
