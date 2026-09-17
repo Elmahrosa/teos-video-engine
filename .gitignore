@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Runtime-generated pipeline artifacts
+assets/
+AUDIT_INDEX.md
+output/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp

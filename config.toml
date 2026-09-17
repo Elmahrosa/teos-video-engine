@@ -3,12 +3,30 @@ mode = "sovereign"
 audit_log = "AUDIT_INDEX.md"
 
 [gateway]
-# Point this to your running teos-ai-engine instance
+# Upstream TEOS-AI-Engine. Reachable path used only when TEOS_API_KEY (or
+# TEOS_AI_API_KEY) is present in the environment; otherwise the sovereign
+# local provider below is used so the forge never silently degrades.
 teos_ai_endpoint = "http://localhost:3000/api/v1"
-llm_provider = "ollama"
+
+# Sovereign local provider (fallback path)
+llm_provider = "ollama"        # ollama | (extensible)
+ollama_endpoint = "http://localhost:11434"
+ollama_model = "llama3.2"
+
+# Text-to-speech
 tts_provider = "edge"
+tts_voice = "en-US-ChristopherNeural"
 
 [compliance]
 ert_filter = true
 icbc_governance = true
 visibility_scoring = true
+
+[source_policy]
+# Official Elmahrosa sources only — the restricted-script gateway must never
+# cite anything outside this allowlist.
+allowed_domains = [
+  "elmahrosa.com",
+  "teosegypt.com",
+  "github.com/Elmahrosa",
+]
