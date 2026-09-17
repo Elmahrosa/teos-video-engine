@@ -4,5 +4,6 @@ pydantic==2.5.2
 openai-whisper==20250625
 moviepy==2.2.1
 imageio-ffmpeg==0.6.0
+opencv-python-headless==5.0.0.93
 edge-tts==7.2.8
 requests==2.31.0

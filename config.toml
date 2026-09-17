@@ -35,6 +35,14 @@ allowed_domains = [
   "github.com/Elmahrosa",
 ]
 
+[vault]
+# Sovereign Media Vault — all visual assets live on-device, never fetched.
+directory = "assets/sovereign_vault"
+# Each matched asset fills one slice; longer videos cycle the vault.
+slice_seconds = 6
+# Ken Burns zoom strength per slice (0.12 = gentle 12% drift).
+zoom = 0.12
+
 [video]
 # Vertical short-form canvas (9:16). TEOS branded dark blue/black background.
 width = 1080
@@ -43,3 +51,6 @@ fps = 30
 background = [8, 10, 22]
 # Leave empty to auto-resolve a system font for the burned-in subtitles.
 subtitle_font = ""
+# x264 speed/size trade-off: ultrafast < veryfast < faster < medium.
+encoder_preset = "veryfast"
+crf = 28

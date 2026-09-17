@@ -4,13 +4,16 @@ import asyncio
 import json
 from pathlib import Path
 
-from core import gateway, governance, subtitles, video
+from moviepy import AudioFileClip
+
+from core import asset_manager, gateway, governance, subtitles, video
 
 
 class VideoOrchestrator:
     def __init__(self, topic: str, voice: str | None = None):
         self.topic = topic
         self.voice = voice
+        self.assets = asset_manager.AssetManager()
 
     async def generate(self) -> dict:
         governance.log_audit(
@@ -42,12 +45,24 @@ class VideoOrchestrator:
         )
         governance.log_audit("Subtitles", "Generated local SRT file.")
 
-        # 4. Assemble the final short-form MP4.
+        # 4. Match sovereign vault media to the script.
+        audio_handle = AudioFileClip(audio_path)
+        try:
+            audio_duration = float(audio_handle.duration)
+        finally:
+            audio_handle.close()
+        matched = self.assets.get_visuals_for_script(
+            f"{self.topic}. {script}", audio_duration
+        )
+        governance.log_audit("Asset Matching", f"Matched {len(matched)} sovereign assets.")
+
+        # 5. Assemble the final short-form MP4 (Ken Burns or brand canvas).
         video_path = video.assemble_video(
             script,
             audio_path,
             srt_path,
             str(Path("assets") / "videos" / "output.mp4"),
+            assets=matched,
         )
         governance.log_audit("Video Assembly", f"Final MP4 rendered successfully: {video_path}")
 
@@ -59,6 +74,7 @@ class VideoOrchestrator:
             "script": script,
             "audio": audio_path,
             "subtitles": srt_path,
+            "assets": matched,
             "video": video_path,
         }
 

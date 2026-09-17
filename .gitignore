@@ -8,6 +8,8 @@ venv/
 assets/
 AUDIT_INDEX.md
 output/
+# MoviePy intermediate audio during render
+*TEMP_MPY_wvf_snd.mp4
 
 # Editors / OS
 .vscode/
