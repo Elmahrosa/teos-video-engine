@@ -60,14 +60,25 @@ def _call_teos_engine(endpoint: str, topic: str) -> str:
     payload = {"prompt": topic, "platform": "youtube"}
     headers = {
         "Authorization": f"Bearer {TEOS_API_KEY_ENV}",
+        "x-internal-key": TEOS_API_KEY_ENV,
         "Content-Type": "application/json",
     }
-    response = requests.post(url, json=payload, headers=headers, timeout=8)
-    response.raise_for_status()
-    data = response.json()
-    if isinstance(data, dict):
-        return data.get("post") or data.get("script") or data.get("text") or ""
-    return str(data)
+    last_error: Exception | None = None
+    # Hosted LLM calls can take tens of seconds; retry once, then fall through.
+    for _attempt in range(2):
+        try:
+            response = requests.post(url, json=payload, headers=headers, timeout=240)
+            response.raise_for_status()
+            data = response.json()
+            if isinstance(data, dict):
+                return (
+                    data.get("post") or data.get("script") or data.get("text") or ""
+                )
+            return str(data)
+        except Exception as exc:  # noqa: BLE001 — upstream must never block the forge
+            last_error = exc
+    assert last_error is not None
+    raise last_error
 
 
 def _call_ollama(cfg: dict, topic: str) -> str:

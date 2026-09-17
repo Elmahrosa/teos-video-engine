@@ -3,10 +3,10 @@ mode = "sovereign"
 audit_log = "AUDIT_INDEX.md"
 
 [gateway]
-# Upstream TEOS-AI-Engine. Reachable path used only when TEOS_API_KEY (or
-# TEOS_AI_API_KEY) is present in the environment; otherwise the sovereign
+# Upstream TEOS-AI-Engine (deployed on Vercel). Used only when TEOS_API_KEY
+# (or TEOS_AI_API_KEY) is present in the environment; otherwise the sovereign
 # local provider below is used so the forge never silently degrades.
-teos_ai_endpoint = "http://localhost:3000/api/v1"
+teos_ai_endpoint = "https://teos-ai-engine.vercel.app/api/v1"
 
 # Sovereign local provider (fallback path)
 llm_provider = "ollama"        # ollama | (extensible)
